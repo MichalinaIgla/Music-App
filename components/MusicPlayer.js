@@ -1,22 +1,62 @@
 
-import { SafeAreaView, StyleSheet, Text, View, Dimensions, TouchableOpacity,Image } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons'
-import Slider from '@react-native-community/slider'
+import { SafeAreaView, StyleSheet, Text, View, Dimensions, TouchableOpacity,Image, FlatList, Animated} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Slider from '@react-native-community/slider';
+import {songs} from '../model/data';
+import React, { useRef, useEffect, useState,useCallback } from 'react';
 
-const {width, height} = Dimensions.get('window')
+const {width, height} = Dimensions.get('window');
 
 const MusicPlayer = () => {
+
+  // const scrollX = useRef(new Animated.Value(0)).current  // user scrolling
+  const [songIndex, setSongIndex] = useState(0) 
+  const songSlider = useRef(null)
+
+  const  viewabilityConfig={
+    itemVisiblePercentThreshold: 100,
+   }
+   const onViewableItemsChanged  =  useCallback(({ viewableItems }) => {
+    if (viewableItems.length === 1) {
+      setSongIndex(viewableItems[0].index);
+      console.log(viewableItems[0].index)
+    }
+  }, []);
+
+const viewabilityConfigCallbackPairs = useRef([{ viewabilityConfig, onViewableItemsChanged  }])
+  const renderSongs = ({index, item}) =>  { 
+    return(
+      <View style={{width:width, justifyContent: 'center', alignItems:'center', height: '100%'}}>
+        <View style={styles.imageWrapper}>
+          <Image 
+            source={item.image}  
+            style={styles.imageArt} 
+          />
+        </View>
+        <View style={{marginTop: 30}} >
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.author}>{item.artist}</Text>
+        </View>
+      </View>
+    )}
+
+
+
   return (
       <SafeAreaView style={styles.container}>
         <View style={styles.mainContainer}>
-          <View style={styles.imageWrapper}>
-            <Image source={require('../assets/song-images/BTS_-_Dynamite.png')}  style={styles.imageArt}/>
-          </View>
 
-          <View >
-            <Text style={styles.title}>Song Title</Text>
-            <Text style={styles.author}>Song Author Name</Text>
-          </View>
+          <FlatList 
+            ref={songSlider}
+            data={songs} 
+            renderItem={renderSongs} 
+            keyExtractor={(item)=> item.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            scrollEventThrottle={16}
+            viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
+          />
 
           <View>
             <Slider 
@@ -83,9 +123,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   imageWrapper: {
-    width: 300,
-    height: 340,
-    marginBottom: 25
+    width: 320,
+    height: 320,
+    marginVertical: 50,
+
   },
   imageArt: {
     width: '100%',
@@ -119,13 +160,12 @@ const styles = StyleSheet.create({
   sliderContainer: {
     width: 350,
     height: 40,
-    marginTop: 25,
     flexDirection: 'row'
   },
   progressLabelContainer: {
     width: 340,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   progressLabelText: {
     color: '#EEEEFF'
@@ -134,6 +174,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '60%',
     justifyContent: 'space-between',
-    marginTop: 15
+    marginBottom: 35
   }
 });
