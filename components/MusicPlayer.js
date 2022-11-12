@@ -9,7 +9,6 @@ const {width, height} = Dimensions.get('window');
 
 const MusicPlayer = () => {
 
-  // const scrollX = useRef(new Animated.Value(0)).current  // user scrolling
   const [songIndex, setSongIndex] = useState(0) 
   const songSlider = useRef(null)
 
@@ -20,25 +19,32 @@ const MusicPlayer = () => {
     if (viewableItems.length === 1) {
       setSongIndex(viewableItems[0].index);
       console.log(viewableItems[0].index)
+    
     }
   }, []);
 
 const viewabilityConfigCallbackPairs = useRef([{ viewabilityConfig, onViewableItemsChanged  }])
-  const renderSongs = ({index, item}) =>  { 
-    return(
-      <View style={{width:width, justifyContent: 'center', alignItems:'center', height: '100%'}}>
-        <View style={styles.imageWrapper}>
-          <Image 
-            source={item.image}  
-            style={styles.imageArt} 
-          />
-        </View>
-        <View style={{marginTop: 30}} >
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.author}>{item.artist}</Text>
-        </View>
+
+const skipSong = (to) => {
+  const  number =  to === 'next' ? 1 : -1
+  songSlider.current.scrollToIndex({index: songIndex + number})
+}
+
+const renderSongs = ({index, item}) =>  { 
+  return(
+    <View style={{width:width, justifyContent: 'center', alignItems:'center', height: '100%'}}>
+      <View style={styles.imageWrapper}>
+        <Image 
+          source={item.image}  
+          style={styles.imageArt} 
+        />
       </View>
-    )}
+      <View style={{marginTop: 30}} >
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.author}>{item.artist}</Text>
+      </View>
+    </View>
+  )}
 
 
 
@@ -77,13 +83,13 @@ const viewabilityConfigCallbackPairs = useRef([{ viewabilityConfig, onViewableIt
           </View>
 
           <View style={styles.musicControlls}>
-            <TouchableOpacity onPress={() => {}} >
+            <TouchableOpacity onPress={() => {skipSong('prev')}}  disabled={songIndex -1 < 0} >
               <Ionicons name="play-skip-back-outline" size={35} color="#7CFFC4" style={{marginTop:25}} ></Ionicons>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {}} >
               <Ionicons name="ios-pause-circle" size={75} color="#7CFFC4" ></Ionicons>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {}} >
+            <TouchableOpacity onPress={() => {skipSong('next')}}  disabled={songIndex + 1 >= songs.length}>
               <Ionicons name="play-skip-forward-outline" size={35} color="#7CFFC4" style={{marginTop:25}} ></Ionicons>
             </TouchableOpacity>
           </View>
