@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Slider from '@react-native-community/slider';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {songs} from '../model/data';
 import React, {useRef, useEffect, useState, useCallback} from 'react';
 import TrackPlayer, {
@@ -23,26 +24,13 @@ import TrackPlayer, {
 } from 'react-native-track-player';
 
 const setupPlayer = async () => {
-  // var TrackPlayer = react_native_1.NativeModules.TrackPlayerModule;
   await TrackPlayer.setupPlayer();
   await TrackPlayer.add(songs);
-  // await TrackPlayer.setupPlayer({}).then(() => {
-  //   TrackPlayer.updateOptions({
-  //     capabilities: [
-  //       TrackPlayer.CAPABILITY_PLAY,
-  //       TrackPlayer.CAPABILITY_PAUSE,
-  //       TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
-  //       TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
-  //     ],
-  //   });
-  // });
 };
 
 const togglePlayback = async playbackState => {
   const currenTrack = await TrackPlayer.getCurrentTrack();
-  console.log(currenTrack, 'currenTrack');
   if (currenTrack !== null) {
-    console.log(playbackState, 'state');
     if (playbackState === State.Paused) {
       await TrackPlayer.play();
     } else {
@@ -57,15 +45,46 @@ const MusicPlayer = () => {
   const playbackState = usePlaybackState();
   const songProgress = useProgress();
   const [songIndex, setSongIndex] = useState(0);
+  const [repeatMode, setRepeatMode] = useState('off');
   const songSlider = useRef(null);
 
   const viewabilityConfig = {
     itemVisiblePercentThreshold: 100,
   };
+
+  const repeatIcon = () => {
+    if (repeatMode === 'off') {
+      return 'repeat-off';
+    }
+    if (repeatMode === 'track') {
+      return 'repeat-once';
+    }
+    if (repeatMode === 'repeat') {
+      return 'repeat';
+    }
+  };
+
+  const changeRepeatMode = () => {
+    if (repeatMode === 'off') {
+      setRepeatMode('track');
+    }
+    if (repeatMode === 'track') {
+      setRepeatMode('repeat');
+    }
+    if (repeatMode === 'repeat') {
+      setRepeatMode('off');
+    }
+  };
+
   const onViewableItemsChanged = useCallback(({viewableItems}) => {
     if (viewableItems.length === 1) {
+      skipTo(viewableItems[0].index);
       setSongIndex(viewableItems[0].index);
-      console.log(viewableItems[0].index);
+      console.log(
+        viewableItems[0].index,
+        'viewableItems[0].index)',
+        typeof viewableItems[0].index,
+      );
     }
   }, []);
 
@@ -73,16 +92,24 @@ const MusicPlayer = () => {
     {viewabilityConfig, onViewableItemsChanged},
   ]);
 
+  const skipTo = async trackId => {
+    await TrackPlayer.skip(trackId);
+  };
+
   const skipSong = to => {
     const number = to === 'next' ? 1 : -1;
+    skipTo(songIndex + number);
     songSlider.current.scrollToIndex({index: songIndex + number});
   };
+
   useEffect(() => {
     setupPlayer();
   }, []);
+
   const renderSongs = ({index, item}) => {
     return (
       <View
+        // eslint-disable-next-line react-native/no-inline-styles
         style={{
           width: width,
           justifyContent: 'center',
@@ -92,6 +119,7 @@ const MusicPlayer = () => {
         <View style={styles.imageWrapper}>
           <Image source={item.artwork} style={styles.imageArt} />
         </View>
+
         <View style={{marginTop: 30}}>
           <Text style={styles.title}>{item.title}</Text>
           <Text style={styles.author}>{item.artist}</Text>
@@ -99,12 +127,6 @@ const MusicPlayer = () => {
       </View>
     );
   };
-  console.log(
-    Math.floor(songProgress.position),
-    'p',
-    songProgress.duration,
-    ((songProgress.duration - songProgress.position) * 1000).toString(),
-  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -161,7 +183,8 @@ const MusicPlayer = () => {
               name="play-skip-back-outline"
               size={35}
               color="#7CFFC4"
-              style={{marginTop: 25}}></Ionicons>
+              style={{marginTop: 25}}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
@@ -174,7 +197,8 @@ const MusicPlayer = () => {
                   : 'ios-play-circle'
               }
               size={75}
-              color="#7CFFC4"></Ionicons>
+              color="#7CFFC4"
+            />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
@@ -185,7 +209,8 @@ const MusicPlayer = () => {
               name="play-skip-forward-outline"
               size={35}
               color="#7CFFC4"
-              style={{marginTop: 25}}></Ionicons>
+              style={{marginTop: 25}}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -193,19 +218,20 @@ const MusicPlayer = () => {
       <View style={styles.bottomContainer}>
         <View style={styles.bottomControls}>
           <TouchableOpacity onPress={() => {}}>
-            <Ionicons name="heart-outline" size={30} color="#7CFFC4"></Ionicons>
+            <Ionicons name="heart-outline" size={30} color="#3c5c4d" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}}>
-            <Ionicons name="repeat" size={30} color="#7CFFC4"></Ionicons>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}}>
-            <Ionicons name="share-outline" size={30} color="#7CFFC4"></Ionicons>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}}>
-            <Ionicons
-              name="ellipsis-horizontal"
+          <TouchableOpacity onPress={changeRepeatMode}>
+            <MaterialCommunityIcons
+              name={`${repeatIcon()}`}
               size={30}
-              color="#7CFFC4"></Ionicons>
+              color={repeatMode !== 'off' ? '#3c5c4d' : '7CFFC4'}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {}}>
+            <Ionicons name="share-outline" size={30} color="#3c5c4d" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {}}>
+            <Ionicons name="ellipsis-horizontal" size={30} color="#3c5c4d" />
           </TouchableOpacity>
         </View>
       </View>
@@ -236,7 +262,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   bottomContainer: {
-    borderTopColor: '#7CFFC4',
+    borderTopColor: '#3c5c4d',
     borderTopWidth: 1,
     width: width,
     alignItems: 'center',
