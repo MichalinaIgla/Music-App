@@ -17,10 +17,10 @@ export const songs = [
   },
   {
     id: 3,
-    title: '3',
-    artist: '3',
+    title: 'Sunflower',
+    artist: 'Post Malone, Swae Lee',
     artwork: require('../assets/song-images/sunflower_spiderman.jpg'),
     url: require('../assets/song-music/Sunflower_Spider_Man.mp3'),
-    duration: 281,
+    duration: 181,
   },
 ];
