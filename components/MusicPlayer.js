@@ -49,7 +49,7 @@ const togglePlayback = async playbackState => {
   }
 };
 
-const {width, height} = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 const MusicPlayer = () => {
   const playbackState = usePlaybackState();
@@ -251,7 +251,7 @@ const MusicPlayer = () => {
             <MaterialCommunityIcons
               name={`${repeatIcon()}`}
               size={30}
-              color={repeatMode !== 'off' ? '#3c5c4d' : '7CFFC4'}
+              color="#3c5c4d"
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {}}>
