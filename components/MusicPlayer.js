@@ -17,7 +17,6 @@ import TrackPlayer, {
   Capability,
   Event,
   State,
-  // playbackState,
   useProgress,
   useTrackPlayerEvents,
   usePlaybackState,
@@ -56,6 +55,7 @@ const {width, height} = Dimensions.get('window');
 
 const MusicPlayer = () => {
   const playbackState = usePlaybackState();
+  const songProgress = useProgress();
   const [songIndex, setSongIndex] = useState(0);
   const songSlider = useRef(null);
 
@@ -99,6 +99,12 @@ const MusicPlayer = () => {
       </View>
     );
   };
+  console.log(
+    Math.floor(songProgress.position),
+    'p',
+    songProgress.duration,
+    ((songProgress.duration - songProgress.position) * 1000).toString(),
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -120,19 +126,29 @@ const MusicPlayer = () => {
         <View>
           <Slider
             style={styles.sliderContainer}
-            value={10}
-            minValue={0}
-            maxValue={100}
+            value={songProgress.position}
+            minimumValue={0}
+            maximumValue={songProgress.duration}
             thumbTintColor="#EEEEFF"
             minimumTrackTintColor="#7CFFC4"
             maximumTrackTintColor="#7CFFC4"
-            onSlidingComplete={() => {}}
+            onSlidingComplete={async value => {
+              await TrackPlayer.seekTo(value);
+            }}
           />
         </View>
 
         <View style={styles.progressLabelContainer}>
-          <Text style={styles.progressLabelText}>0:00</Text>
-          <Text style={styles.progressLabelText}>3:55</Text>
+          <Text style={styles.progressLabelText}>
+            {new Date(songProgress.position * 1000)
+              .toUTCString()
+              .substring(26, 20)}
+          </Text>
+          <Text style={styles.progressLabelText}>
+            {new Date((songProgress.duration - songProgress.position) * 1000)
+              .toUTCString()
+              .substring(26, 20)}
+          </Text>
         </View>
 
         <View style={styles.musicControlls}>
@@ -154,8 +170,8 @@ const MusicPlayer = () => {
             <Ionicons
               name={
                 playbackState === State.Playing
-                  ? 'ios-pause'
-                  : 'ios-pause-circle'
+                  ? 'ios-pause-circle'
+                  : 'ios-play-circle'
               }
               size={75}
               color="#7CFFC4"></Ionicons>
