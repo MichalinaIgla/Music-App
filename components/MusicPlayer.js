@@ -21,6 +21,7 @@ import TrackPlayer, {
   useProgress,
   useTrackPlayerEvents,
   usePlaybackState,
+  RepeatMode,
 } from 'react-native-track-player';
 
 const setupPlayer = async () => {
@@ -66,12 +67,15 @@ const MusicPlayer = () => {
 
   const changeRepeatMode = () => {
     if (repeatMode === 'off') {
+      TrackPlayer.setRepeatMode(RepeatMode.Track);
       setRepeatMode('track');
     }
     if (repeatMode === 'track') {
+      TrackPlayer.setRepeatMode(RepeatMode.Queue);
       setRepeatMode('repeat');
     }
     if (repeatMode === 'repeat') {
+      TrackPlayer.setRepeatMode(RepeatMode.Off);
       setRepeatMode('off');
     }
   };
