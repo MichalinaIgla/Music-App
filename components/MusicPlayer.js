@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import {
   SafeAreaView,
   StyleSheet,
@@ -7,7 +8,6 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
-  Animated,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Slider from '@react-native-community/slider';
@@ -26,6 +26,15 @@ import TrackPlayer, {
 
 const setupPlayer = async () => {
   await TrackPlayer.setupPlayer();
+  await TrackPlayer.updateOptions({
+    capabilities: [
+      Capability.Play,
+      Capability.Pause,
+      Capability.SkipToNext,
+      Capability.SkipToPrevious,
+      Capability.Stop,
+    ],
+  });
   await TrackPlayer.add(songs);
 };
 
@@ -46,7 +55,21 @@ const MusicPlayer = () => {
   const playbackState = usePlaybackState();
   const songProgress = useProgress();
   const [songIndex, setSongIndex] = useState(0);
+  const [trackArtist, setTrackArtist] = useState();
+  const [trackArtwork, setTrackArtwork] = useState();
+  const [trackTitle, setTrackTitle] = useState();
   const [repeatMode, setRepeatMode] = useState('off');
+
+  useTrackPlayerEvents([Event.PlaybackTrackChanged], async event => {
+    if (event.type === Event.PlaybackTrackChanged && event.nextTrack !== null) {
+      const track = await TrackPlayer.getTrack(event.nextTrack);
+      const {title, artwork, artist} = track;
+      setTrackArtist(artist);
+      setTrackArtwork(artwork);
+      setTrackTitle(title);
+    }
+  });
+
   const songSlider = useRef(null);
 
   const viewabilityConfig = {
@@ -66,6 +89,7 @@ const MusicPlayer = () => {
   };
 
   const changeRepeatMode = () => {
+    console.log(repeatMode, 'repeatMode');
     if (repeatMode === 'off') {
       TrackPlayer.setRepeatMode(RepeatMode.Track);
       setRepeatMode('track');
@@ -113,7 +137,6 @@ const MusicPlayer = () => {
   const renderSongs = ({index, item}) => {
     return (
       <View
-        // eslint-disable-next-line react-native/no-inline-styles
         style={{
           width: width,
           justifyContent: 'center',
@@ -121,12 +144,12 @@ const MusicPlayer = () => {
           height: '100%',
         }}>
         <View style={styles.imageWrapper}>
-          <Image source={item.artwork} style={styles.imageArt} />
+          <Image source={trackArtwork} style={styles.imageArt} />
         </View>
 
         <View style={{marginTop: 30}}>
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.author}>{item.artist}</Text>
+          <Text style={styles.title}>{trackTitle}</Text>
+          <Text style={styles.author}>{trackArtist}</Text>
         </View>
       </View>
     );
