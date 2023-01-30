@@ -1,28 +1,29 @@
 /* eslint-disable react-native/no-inline-styles */
+import Slider from '@react-native-community/slider';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
+  Dimensions,
+  FlatList,
+  Image,
   SafeAreaView,
   StyleSheet,
   Text,
-  View,
-  Dimensions,
   TouchableOpacity,
-  Image,
-  FlatList,
+  View,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Slider from '@react-native-community/slider';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {songs} from '../model/data';
-import React, {useRef, useEffect, useState, useCallback} from 'react';
 import TrackPlayer, {
   Capability,
   Event,
+  RepeatMode,
   State,
+  usePlaybackState,
   useProgress,
   useTrackPlayerEvents,
-  usePlaybackState,
-  RepeatMode,
 } from 'react-native-track-player';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {songRequest} from '../api/songs_request';
+import {songs} from '../model/data';
 
 const setupPlayer = async () => {
   await TrackPlayer.setupPlayer();
@@ -35,6 +36,17 @@ const setupPlayer = async () => {
       Capability.Stop,
     ],
   });
+
+  // requested songs
+  // const requested_song = await songRequest(
+  //   'https://soundcloud.com/edsheeran/photograph',
+  // );
+  // const requestedSong = await songRequest(
+  //   'https://soundcloud.com/luis-cervantes-37/james-arthur-train-wreck',
+  // );
+  // await TrackPlayer.add(requestedSong);
+
+  // local songs
   await TrackPlayer.add(songs);
 };
 
