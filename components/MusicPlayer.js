@@ -28,14 +28,10 @@ import {songs} from '../model/data';
 const setupPlayer = async () => {
   await TrackPlayer.setupPlayer();
   await TrackPlayer.updateOptions({
-    capabilities: [
-      Capability.Play,
-      Capability.Pause,
-      Capability.SkipToNext,
-      Capability.SkipToPrevious,
-      Capability.Stop,
-    ],
+    capabilities: [Capability.Play, Capability.Pause],
   });
+
+  // uncomment to fetch songs:
 
   // requested songs
   // const requested_song = await songRequest(
