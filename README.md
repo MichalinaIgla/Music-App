@@ -15,6 +15,6 @@
 - Play fetch songs/local songs
 
 
-## To fetch song:
+## To fetch song from soundcloud:
 - you need to update XRapidAPIKey in env file 
 - uncomment await songRequest() in function setupPlayer() 
